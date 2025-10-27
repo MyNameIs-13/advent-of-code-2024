@@ -1,0 +1,3 @@
+[submodule "shared"]
+	path = shared
+	url = https://github.com/MyNameIs-13/advent-of-code-shared.git
