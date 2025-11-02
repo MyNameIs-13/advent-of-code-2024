@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import operator
 from math import prod
+from os import MFD_ALLOW_SEALING
 
 from aocd.models import Puzzle
 from shared import utils
@@ -27,44 +28,44 @@ def __get_input_data_list(input_data: str) -> list:
     return input_data_list
 
 
-def __calculate_solution(input_data_list: list, operators: list):
-    solution = 0
-    for line in input_data_list:
-        result, parts = line['result'], line['parts']
-        possible_results = {parts[0]}
-        for _part in parts[1:]:
-            new_possible_results = set()
-            for _possible_result in possible_results:
-                for _operator in operators:
-                    _xx = _operator(_possible_result, _part)
-                    if _xx <= result:
-                        new_possible_results.add(_xx)
-            possible_results = new_possible_results
-        if result in possible_results:
-            solution += result
-        else:
-            logger.debug(f'result: {result} parts: {parts}')
-            logger.debug(f'{result} not')
-            logger.debug(f'possible_results: {possible_results}')
-
-    return solution
-
-
 def __concat(a: int, b: int) -> int:
     return int(str(a) + str(b))
 
 
+def __calculate_solution_recursive(input_data_list: list, part_b = False):
+    solution = 0
+    for line in input_data_list:
+        result, parts = line['result'], line['parts']
+        if __is_calculation_match(result, parts[0], parts[1:], part_b = part_b):
+            solution += result
+    return solution
+
+
+def __is_calculation_match(expected_result: int, previous_result: int, remaining_numbers_list: list, part_b: bool = False) -> bool:
+    if len(remaining_numbers_list) == 0:
+        return expected_result == previous_result
+
+    if previous_result > expected_result:
+        return False
+
+    if __is_calculation_match(expected_result, previous_result * remaining_numbers_list[0], remaining_numbers_list[1:], part_b=part_b):
+        return True
+
+    if part_b and __is_calculation_match(expected_result, __concat(previous_result, remaining_numbers_list[0]), remaining_numbers_list[1:], part_b=part_b):
+        return True
+
+    return __is_calculation_match(expected_result, previous_result + remaining_numbers_list[0], remaining_numbers_list[1:], part_b=part_b)
+
+
 def solve_part_a(input_data: str) -> str:
     input_data_list = __get_input_data_list(input_data)
-    operators = [operator.mul, operator.add]
-    solution = __calculate_solution(input_data_list, operators)
+    solution = __calculate_solution_recursive(input_data_list)
     return str(solution)
 
 
 def solve_part_b(input_data: str) -> str:
     input_data_list = __get_input_data_list(input_data)
-    operators = [operator.mul, operator.add, __concat]
-    solution = __calculate_solution(input_data_list, operators)
+    solution = __calculate_solution_recursive(input_data_list, part_b = True)
     return str(solution)
 
 

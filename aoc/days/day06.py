@@ -18,104 +18,94 @@ CHANGE_DIRECTION = {
 }
 
 
-def __in_bound(guard_position: Tuple[int, int] , grid: list) -> bool:
+def __in_bound(y: int, x: int, grid: list) -> bool:
     rows = len(grid)
     cols = len(grid[0])
-    if  0 <= guard_position[0] < rows and 0 <= guard_position[1] < cols:
+    if  0 <= y < rows and 0 <= x < cols:
         return True
     return False
 
 
-def __get_next_position(guard_position: list) -> Tuple[int, int]:
-    dy = guard_position[0] + utils.DIRECTIONS[guard_position[2]][0]
-    dx = guard_position[1] + utils.DIRECTIONS[guard_position[2]][1]
-    return dy, dx
+def __get_next_position(y: int, x: int, direction: str, grid: list) -> Tuple[int, int, str]:
+    next_y = y + utils.DIRECTIONS[direction][0]
+    next_x = x + utils.DIRECTIONS[direction][1]
+    if __in_bound(next_y, next_x, grid):
+        if grid[next_y][next_x] == '#':
+            direction = CHANGE_DIRECTION[direction]
+            next_y = y
+            next_x = x
+    else:
+        next_y, next_x, direction = None, None, None
+    return next_y, next_x, direction
 
 
-def __get_start_location(grid: list) -> list:
+def __get_start_location(grid: list) -> Tuple[int, int, str]:
     rows = len(grid)
     cols = len(grid[0])
     for y in range(rows):
         for x in range(cols):
             c = grid[y][x]
             if c == '^':
-                start_location = [y, x, 'up']
-                logger.debug(start_location)
-                return start_location
+                logger.debug(f'{y}, {x}, up')
+                return y, x, 'up'
     else:
         raise Exception('Start location not found')
 
 
-def solve_part_a(input_data: str) -> str:
-    grid = utils.get_grid(input_data)
-    guard_position = __get_start_location(grid)
-
+def __get_visited_locations(guard_y: int, guard_x: int, guard_dir: str, grid: list) -> set:
     visited_locations = set()
     while True:
-        visited_locations.add((guard_position[0], guard_position[1]))
-        next_position = __get_next_position(guard_position)
-        if __in_bound((next_position[0], next_position[1]), grid):
-            if grid[next_position[0]][next_position[1]] == '#':
-                guard_position[2] = CHANGE_DIRECTION[guard_position[2]]
-            else:
-                guard_position[0] = next_position[0]
-                guard_position[1] = next_position[1]
-                logger.debug(guard_position)
-        else:
+        visited_locations.add((guard_y, guard_x))
+        guard_y, guard_x, guard_dir = __get_next_position(guard_y, guard_x, guard_dir, grid)
+        if guard_y is None:
             break
+    return visited_locations
 
+
+def solve_part_a(input_data: str) -> str:
+    grid = utils.get_grid(input_data)
+    guard_y, guard_x, guard_dir = __get_start_location(grid)
+    visited_locations = __get_visited_locations(guard_y, guard_x, guard_dir, grid)
     return str(len(visited_locations))
 
 
 def solve_part_b(input_data: str) -> str:
-    # TODO: implement solution for part B
     """
-    for each position in the grid do:
+    for each position in the grid that the guard visits:
     replace position with #
     -> check if same position (+ direction) is visited twice
     if yes, break and add this position as looping loouie
     -> when done, len(looping loouie)
     """
     grid = utils.get_grid(input_data)
-    start_location = __get_start_location(grid)
     looping_loouie = set()
-    rows = len(grid)
-    cols = len(grid[0])
-    for y in range(rows):
-        for x in range(cols):
-            if grid[y][x] == '#' or grid[y][x] == '^':
-                continue
-            grid[y][x] = '#'
-            guard_position = start_location[::]
-            visited_locations = set()
-            is_looping_loouie = False
+    start_y, start_x, start_dir = __get_start_location(grid)
+    guard_path = __get_visited_locations(start_y, start_x, start_dir, grid)
 
-            while True:
-                location = (guard_position[0], guard_position[1], guard_position[2])
-                if location in visited_locations:
-                    is_looping_loouie = True
-                    logger.debug('break is_looping_loouie')
-                    break
-                visited_locations.add(location)
-                next_position = __get_next_position(guard_position)
-                if __in_bound((next_position[0], next_position[1]), grid):
-                    if grid[next_position[0]][next_position[1]] == '#':
-                        guard_position[2] = CHANGE_DIRECTION[guard_position[2]]
-                    else:
-                        guard_position[0] = next_position[0]
-                        guard_position[1] = next_position[1]
-                        # logger.debug(guard_position)
-                else:
-                    logger.debug('break bounds')
-                    break
+    for y, x in guard_path:
+        if grid[y][x] == '#' or grid[y][x] == '^':
+            continue
+        grid[y][x] = '#'
+        guard_y, guard_x, guard_dir = start_y, start_x, start_dir
+        visited_locations = set()
+        is_looping_loouie = False
 
-            if is_looping_loouie:
-                looping_loouie.add((y, x))
-            grid[y][x] = '.'
+        while True:
+            location = (guard_y, guard_x, guard_dir)
+            if location in visited_locations:
+                is_looping_loouie = True
+                logger.debug('break is_looping_loouie')
+                break
+            visited_locations.add(location)
+            guard_y, guard_x, guard_dir = __get_next_position(guard_y, guard_x, guard_dir, grid)
+            if guard_y is None:
+                break
+
+        if is_looping_loouie:
+            looping_loouie.add((y, x))
+        grid[y][x] = '.'
 
     return str(len(looping_loouie))
-
-
 
 
 def main() -> None:
