@@ -80,10 +80,10 @@ def main() -> None:
     day = 2
     logger.info(f'🎄 Running puzzle day 02...')
     puzzle = Puzzle(year=year, day=day)
-    input_data = utils.get_input_data(puzzle, example_data=EXAMPLE_DATA)
+    puzzle = Puzzle(year=year, day=day)
 
-    utils.solve_puzzle_part(puzzle, solve_part_a, 'a', input_data, submit_solution=(not EXAMPLE_DATA))
-    utils.solve_puzzle_part(puzzle, solve_part_b, 'b', input_data, submit_solution=(not EXAMPLE_DATA))
+    utils.solve_puzzle_part(puzzle, solve_part_a, 'a', example_data=EXAMPLE_DATA, submit_solution=True)
+    utils.solve_puzzle_part(puzzle, solve_part_b, 'b', example_data=EXAMPLE_DATA, submit_solution=True)
 
     return None
 
