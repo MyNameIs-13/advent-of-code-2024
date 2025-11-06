@@ -29,7 +29,7 @@ def __run_or_create_day(day: int):
 
 if __name__ == '__main__':
     day_num = None
-    day_num = 6  # day overwrite
+    day_num = 10  # day overwrite
     day_num = get_day(sys.argv[1:], day_num)
     if day_num:
         __run_or_create_day(day_num)
