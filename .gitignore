@@ -3,3 +3,4 @@ __pycache__/
 inputs/
 .venv/
 .venv
+aoc/days/day12.py
