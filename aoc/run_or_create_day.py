@@ -4,9 +4,11 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 import importlib
-from shared.logger import logger
+
 from shared.create_new_day import create_day
+from shared.logger import logger
 from shared.utils import get_day
+
 # import logging
 # logger.setLevel(logging.DEBUG)
 
@@ -29,7 +31,7 @@ def __run_or_create_day(day: int):
 
 if __name__ == '__main__':
     day_num = None
-    day_num = 11  # day overwrite
+    day_num = 13  # day overwrite
     day_num = get_day(sys.argv[1:], day_num)
     if day_num:
         __run_or_create_day(day_num)
