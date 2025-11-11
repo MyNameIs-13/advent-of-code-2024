@@ -17,19 +17,6 @@ def __is_antinode(y: int, x: int, row_count: int, col_count: int, antinodes: set
     return False
 
 
-def __calc_distance(start_position: Tuple[int, int], _position: Tuple[int, int], antinodes: set, row_count: int, col_count: int) -> None:
-    diff_y = _position[0] - start_position[0]
-    diff_x = _position[1] - start_position[1]
-
-    possible_antinode = (start_position[0] - diff_y, start_position[1] - diff_x)
-    __is_antinode(possible_antinode[0], possible_antinode[1], row_count, col_count, antinodes)
-
-    possible_antinode = (_position[0] + diff_y, _position[1] + diff_x)
-    __is_antinode(possible_antinode[0], possible_antinode[1], row_count, col_count, antinodes)
-
-    return
-
-
 def __calculate_antinodes(positions: list, antinodes: set, row_count: int, col_count: int, part_b: bool = False) -> None:
     if len(positions) == 1:
         return
