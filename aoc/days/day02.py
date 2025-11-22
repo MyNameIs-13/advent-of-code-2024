@@ -60,8 +60,9 @@ def solve_part_b(input_data: str) -> str:
             result += 1
         else:
             for i in range(0, len(numbers_list)):
-                _numbers_list = numbers_list.copy()
-                _numbers_list.pop(i)
+                # _numbers_list = numbers_list.copy()
+                # _numbers_list.pop(i)
+                _numbers_list = [number for j, number in enumerate(numbers_list) if i!=j]
                 if is_level_save(_numbers_list):
                     logger.debug('save')
                     result += 1
