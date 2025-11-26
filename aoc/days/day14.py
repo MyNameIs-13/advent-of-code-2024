@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+import logging
+
+from aocd.models import Puzzle
+
+from shared import utils
+from shared.logger import logger
+
+logger.setLevel(logging.DEBUG)  # comment out to disable debug logging real data
+
+EXAMPLE_DATA = False
+EXAMPLE_DATA = True  # overwrite
+SUBMIT = True
+# SUBMIT = False  # overwrite
+
+def solve_part_a(input_data: str) -> str:
+    # TODO: implement solution for part A
+    result = None
+    for line in utils.input_data_to_list(input_data):
+        logger.debug(line)
+    return str(result)
+
+
+def solve_part_b(input_data: str) -> str:
+    # TODO: implement solution for part B
+    result = None
+    for line in utils.input_data_to_list(input_data):
+        logger.debug(line)
+    return str(result)
+
+
+def main() -> None:
+    """
+    Execute the solve functions for each part and submit the solution for the specified year and day
+    This is part of the template and does not need to be changed
+    """
+    year = 2024
+    day = 14
+    logger.info('🎄 Running puzzle day 14...')
+    puzzle = Puzzle(year=year, day=day)
+
+    utils.solve_puzzle_part(puzzle, solve_part_a, 'a', example_data=EXAMPLE_DATA, submit_solution=SUBMIT)
+    utils.solve_puzzle_part(puzzle, solve_part_b, 'b', example_data=EXAMPLE_DATA, submit_solution=SUBMIT)
+
+    return None
+
+if __name__ == '__main__':
+    main()

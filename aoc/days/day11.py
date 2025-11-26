@@ -15,28 +15,6 @@ SUBMIT = True
 # SUBMIT = False  # overwrite
 
 
-
-
-
-def __blink(stone_list: list, blink_countdown: int):
-    for i in range(blink_countdown):
-        new_stone_list = []
-        for j, stone in enumerate(stone_list):
-            if stone == 0:
-                new_stone_list.append(1)
-            elif len(str(stone)) % 2 == 0:
-                stone_len = len(str(stone))
-                left = int(str(stone)[0:stone_len//2])
-                right = int(str(stone)[stone_len//2:])
-                new_stone_list.append(left)
-                new_stone_list.append(right)
-            else:
-                new_stone_list.append(stone * 2024)
-        # logger.debug(stone_list)
-        stone_list = new_stone_list
-    return stone_list
-
-
 @lru_cache(maxsize=None)
 def __blink_fast(stone: int, remaining_blinks: int) -> int:
     if remaining_blinks == 0:
@@ -45,13 +23,15 @@ def __blink_fast(stone: int, remaining_blinks: int) -> int:
     if stone == 0:
         return __blink_fast(1, remaining_blinks - 1)
     elif len(str(stone)) % 2 == 0:
+        logger.debug(f'stone: {stone}')
         stone_len = len(str(stone))
         left = int(str(stone)[0:stone_len // 2])
+        logger.debug(f'left: {left}')
         right = int(str(stone)[stone_len // 2:])
+        logger.debug(f'right: {right}')
         return __blink_fast(left, remaining_blinks - 1) + __blink_fast(right, remaining_blinks - 1)
     else:
         return __blink_fast(stone * 2024, remaining_blinks - 1)
-
 
 
 def solve_part_a(input_data: str) -> str:
@@ -66,9 +46,11 @@ def solve_part_a(input_data: str) -> str:
     for line in utils.input_data_to_list(input_data):
         stone_list = [int(x) for x in line.split(' ')]
 
-    stone_list = __blink(stone_list, blink_countdown)
+    stone_counter = 0
+    for stone in stone_list:
+        stone_counter += __blink_fast(stone, blink_countdown)
 
-    return str(len(stone_list))
+    return str(stone_counter)
 
 
 def solve_part_b(input_data: str) -> str:
