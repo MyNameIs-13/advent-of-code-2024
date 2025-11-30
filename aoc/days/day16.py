@@ -45,12 +45,12 @@ def solve_part_a(input_data: str) -> str:
     all_shortest_paths, cost = get_all_shortest_paths(graph, Node(start_point, 0), end_point)
     logger.debug(f'Found {len(all_shortest_paths)} shortest paths with cost {cost}')
 
-    # Optional: Visualize the first shortest path found for debugging or demonstration.
+    # Optional: Visualize the shortest paths found for debugging or demonstration.
     grid[Point(0, 0)] = f'\033[39m{grid[Point(0, 0)]}'  # Reset color for the first char
-    if all_shortest_paths: # Ensure there is at least one path
+    for _shortest_path in all_shortest_paths: # Ensure there is at least one path
         _grid = grid.copy()
         # Mark the path nodes with their direction symbols, colored red.
-        for node in all_shortest_paths[0][1:-1]: # Exclude start and end for clear visualization
+        for node in _shortest_path[1:-1]: # Exclude start and end for clear visualization
             _grid[node.p] = f'\033[31m{DIRECTION_SYMBOLS[node.d]}\033[39m'  # color path red
         logger.debug(_grid) # Log the colored grid
     return str(cost)
