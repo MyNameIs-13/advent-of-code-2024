@@ -52,13 +52,13 @@ class ThreeBitComputer:
             self._operand = self._program[self._instruction_pointer + 1]
             self._instruction_pointer += 2
             self._execute_instruction[self._opcode]()
-        logger.debug('Program terminated')
-        logger.debug(f'register A: {self._register_a}')
-        logger.debug(f'register B: {self._register_b}')
-        logger.debug(f'register C: {self._register_c}')
-        
+        # logger.debug('Program terminated')
+        # logger.debug(f'register A: {self._register_a}')
+        # logger.debug(f'register B: {self._register_b}')
+        # logger.debug(f'register C: {self._register_c}')
+
     def _set_combo_operand_value(self):
-        if  0 >= self._operand <= 3:
+        if  0 <= self._operand <= 3:
             pass
         elif self._operand == 4:
             self._operand = self._register_a
@@ -135,14 +135,19 @@ def solve_part_a(input_data: str) -> str:
 
 
 def solve_part_b(input_data: str) -> str:
+    # TODO: not solved - find a way to calculate this differently than brute force
     program, _, _, _ = parse_input(input_data)
+    a: int = pow(8, len(program)-1)
+
+    # INFO: old 'try' which helped to recognize a pattern
     computer = ThreeBitComputer(program)
     program_str = ','.join([str(x) for x in program])
-    a: int = -1
-    while  computer.get_output() != program_str:
+    while computer.get_output() != program_str:
         a = a + 1
         computer.reboot(register_a=a)
         computer.run_program()
+        logger.debug(f"Trying a={a}, Output: {computer.get_output()}")
+    logger.debug(f"Found a={a} with output: {computer.get_output()}")    
     return str(a)
 
 
