@@ -133,8 +133,8 @@ def add_all_labyrinth_edges_to_graph(graph: dict, wall_coordinates_set: set, sta
         visited_nodes_set.add(current_node)
 
         # Explore all four possible cardinal directions from the current point.
-        for _key, (dy, dx) in DIRECTIONS.items(): # _key is the integer representation of the neighbor's direction
-            neighbor_point = Point(current_node.p.y + dy, current_node.p.x + dx)
+        for _key, p in DIRECTIONS.items(): # _key is the integer representation of the neighbor's direction
+            neighbor_point = current_node.p + p
             
             # Skip if the neighbor point is a wall or outside the grid boundaries.
             if neighbor_point in wall_coordinates_set:

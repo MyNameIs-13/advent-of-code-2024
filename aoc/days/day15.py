@@ -91,15 +91,15 @@ def get_robot_start(grid: utils.Grid) -> Point:
 def get_box_at(position: Point, grid: utils.Grid) -> Tuple[Point, Point] | None:
     """If position is part of a 2-cell box, returns the two points of the box, else None."""
     if grid[position] == BOX_LEFT:
-        return position, utils.add_points(position, Point(0, 1))
+        return position, position + Point(0, 1)
     if grid[position] == BOX_RIGHT:
-        return utils.add_points(position, Point(0, -1)), position
+        return position + Point(0, -1), position
     return None
 
 
 def check_robot_move(grid: utils.Grid, direction: Point, robot_position: Point) -> Tuple[Point, List]:
     """Checks if a move is possible and returns the new position and any boxes that would be pushed."""
-    new_robot_position = utils.add_points(direction, robot_position)
+    new_robot_position = direction + robot_position
     boxes_to_push = []
     stack = {new_robot_position}
     processed = set()  # Contains single points and tuples of points (boxes)
@@ -121,14 +121,14 @@ def check_robot_move(grid: utils.Grid, direction: Point, robot_position: Point) 
 
         if obj_at_pos == BOX:
             boxes_to_push.append(current_pos)
-            stack.add(utils.add_points(direction, current_pos))
+            stack.add(direction + current_pos)
         elif obj_at_pos in [BOX_LEFT, BOX_RIGHT]:
             box = get_box_at(current_pos, grid)
             if box and box not in processed:
                 boxes_to_push.append(box)
                 processed.add(box)
-                stack.add(utils.add_points(direction, box[0]))
-                stack.add(utils.add_points(direction, box[1]))
+                stack.add(direction + box[0])
+                stack.add(direction + box[1])
 
     return new_robot_position, boxes_to_push
 
@@ -141,11 +141,11 @@ def move_robot(robot_position: Point, new_robot_position: Point, direction: Poin
     for box in boxes_to_push:
         if isinstance(box, Point):  # Single 'O' box
             to_clear.add(box)
-            to_set[utils.add_points(direction, box)] = BOX
+            to_set[direction + box] = BOX
         else:  # Tuple for '[]' box
             to_clear.update(box)
-            to_set[utils.add_points(direction, box[0])] = BOX_LEFT
-            to_set[utils.add_points(direction, box[1])] = BOX_RIGHT
+            to_set[direction + box[0]] = BOX_LEFT
+            to_set[direction + box[1]] = BOX_RIGHT
 
     # Clear old positions, careful not to clear a spot that will be occupied
     for p in to_clear:
