@@ -2,9 +2,10 @@
 from typing import Tuple
 
 from aocd.models import Puzzle
+
 from shared import utils
 from shared.logger import logger
-import logging
+
 # logger.setLevel(logging.DEBUG)  # comment out to disable debug logging real data
 
 EXAMPLE_DATA = False
@@ -18,54 +19,43 @@ CHANGE_DIRECTION = {
 }
 
 
-def __in_bound(y: int, x: int, grid: list) -> bool:
-    rows = len(grid)
-    cols = len(grid[0])
-    if  0 <= y < rows and 0 <= x < cols:
-        return True
-    return False
-
-
-def __get_next_position(y: int, x: int, direction: str, grid: list) -> Tuple[int, int, str]:
-    next_y = y + utils.DIRECTIONS[direction][0]
-    next_x = x + utils.DIRECTIONS[direction][1]
-    if __in_bound(next_y, next_x, grid):
-        if grid[next_y][next_x] == '#':
+def __get_next_position(p: utils.Point, direction: str, grid: utils.Grid) -> Tuple[utils.Point, str] | None:
+    next_p = p + utils.DIRECTIONS[direction]
+    if grid.in_bounds(next_p):
+        if grid[next_p] == '#':
             direction = CHANGE_DIRECTION[direction]
-            next_y = y
-            next_x = x
+            next_p = p
     else:
-        next_y, next_x, direction = None, None, None
-    return next_y, next_x, direction
+        return None
+    return next_p, direction
 
 
-def __get_start_location(grid: list) -> Tuple[int, int, str]:
-    rows = len(grid)
-    cols = len(grid[0])
-    for y in range(rows):
-        for x in range(cols):
-            c = grid[y][x]
-            if c == '^':
-                logger.debug(f'{y}, {x}, up')
-                return y, x, 'up'
+def __get_start_location(grid: utils.Grid) -> Tuple[utils.Point, str]:
+    for p, value in grid:
+        if value == '^':
+            logger.debug(f'{p}, up')
+            return p, 'up' 
     else:
         raise Exception('Start location not found')
 
 
-def __get_visited_locations(guard_y: int, guard_x: int, guard_dir: str, grid: list) -> set:
+def __get_visited_locations(guard_p: utils.Point, guard_dir: str, grid: utils.Grid) -> set:
     visited_locations = set()
     while True:
-        visited_locations.add((guard_y, guard_x))
-        guard_y, guard_x, guard_dir = __get_next_position(guard_y, guard_x, guard_dir, grid)
-        if guard_y is None:
+        visited_locations.add(guard_p)
+        next_pos = __get_next_position(guard_p, guard_dir, grid)
+        if next_pos:
+            guard_p = next_pos[0]
+            guard_dir = next_pos[1]
+        else:
             break
     return visited_locations
 
 
 def solve_part_a(input_data: str) -> str:
-    grid = utils.get_grid(input_data)
-    guard_y, guard_x, guard_dir = __get_start_location(grid)
-    visited_locations = __get_visited_locations(guard_y, guard_x, guard_dir, grid)
+    grid = utils.Grid(input_data)
+    guard_p, guard_dir = __get_start_location(grid)
+    visited_locations = __get_visited_locations(guard_p, guard_dir, grid)
     return str(len(visited_locations))
 
 
@@ -77,33 +67,36 @@ def solve_part_b(input_data: str) -> str:
     if yes, break and add this position as looping loouie
     -> when done, len(looping loouie)
     """
-    grid = utils.get_grid(input_data)
     looping_loouie = set()
-    start_y, start_x, start_dir = __get_start_location(grid)
-    guard_path = __get_visited_locations(start_y, start_x, start_dir, grid)
+    grid = utils.Grid(input_data)
+    start_p, start_dir = __get_start_location(grid)
+    guard_path = __get_visited_locations(start_p, start_dir, grid)
 
-    for y, x in guard_path:
-        if grid[y][x] == '#' or grid[y][x] == '^':
+    for p in guard_path:
+        if grid[p] in ('#', '^'):
             continue
-        grid[y][x] = '#'
-        guard_y, guard_x, guard_dir = start_y, start_x, start_dir
+        grid[p] = '#'
+        guard_p, guard_dir = start_p, start_dir
         visited_locations = set()
         is_looping_loouie = False
 
         while True:
-            location = (guard_y, guard_x, guard_dir)
+            location = (guard_p, guard_dir)
             if location in visited_locations:
                 is_looping_loouie = True
                 logger.debug('break is_looping_loouie')
                 break
             visited_locations.add(location)
-            guard_y, guard_x, guard_dir = __get_next_position(guard_y, guard_x, guard_dir, grid)
-            if guard_y is None:
-                break
+            next_location = __get_next_position(guard_p, guard_dir, grid)
+            if next_location:
+                guard_p = next_location[0]
+                guard_dir = next_location[1]
+            else:
+                break            
 
         if is_looping_loouie:
-            looping_loouie.add((y, x))
-        grid[y][x] = '.'
+            looping_loouie.add(p)
+        grid[p] = '.'
 
     return str(len(looping_loouie))
 
@@ -115,7 +108,7 @@ def main() -> None:
     """
     year = 2024
     day = 6
-    logger.info(f'🎄 Running puzzle day 06...')
+    logger.info('🎄 Running puzzle day 06...')
     puzzle = Puzzle(year=year, day=day)
 
     utils.solve_puzzle_part(puzzle, solve_part_a, 'a', example_data=EXAMPLE_DATA, submit_solution=True)
