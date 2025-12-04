@@ -92,8 +92,8 @@ def parse_input(input_data: str) -> tuple[utils.Grid, set, Point, Point]:
     start_point = None
     end_point = None
     # Iterate through each cell in the grid to identify special locations.
-    for y, x, value in grid:
-        current_coordinate = Point(y, x)
+    for p, value in grid:
+        current_coordinate = p
         if value == '#':
             wall_coordinates_set.add(current_coordinate)
         elif value == 'S':

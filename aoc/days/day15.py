@@ -82,9 +82,9 @@ def run_simulation(grid: utils.Grid, movements: List[Point]) -> int:
 
 def get_robot_start(grid: utils.Grid) -> Point:
     """Finds the starting position of the robot."""
-    for y, x, val in grid:
+    for p, val in grid:
         if val == ROBOT:
-            return Point(y, x)
+            return p
     raise ValueError('No robot start point found in the grid')
 
 
@@ -161,7 +161,7 @@ def move_robot(robot_position: Point, new_robot_position: Point, direction: Poin
 
 def calc_total_gps(grid: utils.Grid) -> int:
     """Calculates the total GPS signal strength from all boxes."""
-    return sum(y * 100 + x for y, x, val in grid if val in (BOX, BOX_LEFT))
+    return sum(y * 100 + x for (y, x), val in grid if val in (BOX, BOX_LEFT))
 
 
 def main() -> None:
